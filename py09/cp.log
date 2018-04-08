@@ -1,0 +1,10 @@
+INFO: Platform: linux2
+INFO: Version Info: v0.3.0
+DEBUG: Log Path: cp.log
+DEBUG: command: ['python', '/home2/X/jkusmier/Pulpit/Programiki/py09/zad1.py']
+DEBUG: args: ['/home2/X/jkusmier/Pulpit/Programiki/py09/zad1.py']
+DEBUG: repl: python
+DEBUG: pause: False
+DEBUG: file: None
+INFO: return code: 1 (0x1)
+INFO: elapsed time: 0.009510
