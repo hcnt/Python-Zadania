@@ -1,9 +1,8 @@
 def funkcja(x):
     return (x-2)
 
-def calka(f,a,b,ilosc_trapezow):
 
-
+def calka(f, a, b, ilosc_trapezow):
 
     epsilon = (b-a)/ilosc_trapezow
     poczatekLiczonegoPrzedzialu = a
@@ -13,7 +12,8 @@ def calka(f,a,b,ilosc_trapezow):
 
     for i in range(ilosc_trapezow):
 
-        suma += ((f(poczatekLiczonegoPrzedzialu) + f(koniecLiczonegoPrzedzialu))/2)*epsilon
+        suma += ((f(poczatekLiczonegoPrzedzialu)
+                  + f(koniecLiczonegoPrzedzialu))/2)*epsilon
 
         poczatekLiczonegoPrzedzialu = koniecLiczonegoPrzedzialu
         koniecLiczonegoPrzedzialu = koniecLiczonegoPrzedzialu + epsilon
@@ -21,4 +21,4 @@ def calka(f,a,b,ilosc_trapezow):
     return suma
 
 
-print(calka(funkcja,1,3,1))
+print(calka(funkcja, 1, 3, 1))
