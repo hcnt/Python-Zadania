@@ -12,9 +12,9 @@ def sqrt_reku(liczba, epsilon):
         if(abs(a-b)<epsilon):
             return a
         else:
-            return rekuSqrt(x,((a+b)/2),(x/a),epsilon)
+            return reku1(x,((a+b)/2),(x/a),epsilon)
         
-    return rekuSqrt(liczba,liczba,1,epsilon)
+    return reku1(liczba,liczba,1,epsilon)
 
 
 def funkcja(x):
