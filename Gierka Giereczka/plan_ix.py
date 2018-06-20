@@ -2,23 +2,34 @@
 
 #PLAN_IX
 #(c) Jarosław Bylina, LGPL
-#last change ID: 2018-05-23-b
+#last change ID: 2018-06-20-b
 
 import copy
 import datetime
 import tkinter as Tkinter
 
-class Window(object):
+#TODO:
+#   kontenery na rzeczy
+#   canvas i duszki
+#   setR nie działa?
+
+class Window:
+    class _Record:
+        pass
     _ix_widgets = {
         'L': Tkinter.Label,
         'B': Tkinter.Button,
         'E': Tkinter.Entry,
         'C': Tkinter.Checkbutton,
+        'R': Tkinter.Radiobutton,
+        'Ca': Tkinter.Canvas,
     }
     _var_needed = {'C'}
+    _var_needed_radio = {'R'}
     _whole_gui = None
     _windows = {}
     _last_id = 0
+    gui_vars = _Record()
     def __init__(self, title, **data):
         if self._whole_gui == None:
             self._whole_gui = Tkinter.Tk()
@@ -31,34 +42,32 @@ class Window(object):
         self.defaults = data  ##_ix_make_colors(data)
         self.last_row = 0
         self.images = {}
-        self.vars = object()
+        self.vars = self._Record()
         self._inner_vars = {}
+        self._inner_vars_radio = {}
+        self._radio_values = {}
         self._last_id += 1
         self.my_id = self._last_id
         self._windows[self.my_id] = self.root
     def _ix_expand_array(self, arr, ind, stuff):
         while ind >=len (arr):
             arr.append(stuff)
+    def event(self, event_description, command):
+        self.root.bind(event_description, (lambda event_object:command(app=self, name=None, row=None, col=None, event=event_object)))
+    def timer(self, time_ms, command):
+        self._whole_gui.after(time_ms, (lambda:command(app=self, name=None, row=None, col=None, event=None)))
     def _conf_com(self, widget, name, row, col, command):
         if command!=None:
-            widget.config(command=(lambda:command(app=self, name=name, row=row, col=col)))
+            widget.config(command=(lambda:command(app=self, name=name, row=row, col=col, event=None)))
     def _conf_im(self, widget, image):
         if image!=None:
             if image not in self.images:
-                self.images[image] = Tkinter.PhotoImage(file=image)
+                self.images[image] = Tkinter.PhotoImage(file=image, master=self.root)
 ##                self.images[image] = PIL.ImageTk.PhotoImage(PIL.Image.open(image))
             widget.config(image=self.images[image])
     def add(self, what, row=None, col=None, rowspan=1, colspan=1, name=None, image=None, command=None, **data):
         aux_data = copy.deepcopy(self.defaults)
-
 ##        aux_data.update(_ix_make_colors(data))
-## fg = "#ffffff" # kolor tekstu
-## bg = "#000000" # kolor tła
-## padx = 100 # padding x
-## pady = 100 # padding y
-## font = "ComicSansMS 30" # font i rozmiar
-## image = "papaj.gif" - obrazek
-    
         aux_data.update(data)
         if name in self.cont:
             raise KeyError('The name "%s" exists in this application already...' % (name,))
@@ -71,6 +80,18 @@ class Window(object):
         self.rows[row] = max(col, self.rows[row])
         if what in self._var_needed:
             aux_data['variable'] = self._inner_vars[name] = Tkinter.IntVar()
+        if what in self._var_needed_radio:
+            try:
+                aux_data['variable'] = self._inner_vars_radio[data["radio_group"]]
+            except KeyError:
+                aux_data['variable'] = self._inner_vars_radio[data["radio_group"]] = Tkinter.IntVar()
+            self._inner_vars_radio[data["radio_group"]].set(1)
+            try:
+                self._radio_values[data["radio_group"]].append(data["text"])
+            except KeyError:
+                self._radio_values[data["radio_group"]] = [data["text"]]
+            aux_data['value'] = len(self._radio_values[data["radio_group"]])
+            del aux_data['radio_group']
         widget = self._ix_widgets[what](self.root, aux_data)
         widget.grid(row=row, rowspan=rowspan, column=col, columnspan=colspan)
         if name!=None:
@@ -78,6 +99,7 @@ class Window(object):
         self.cont[(row, col)] = widget
         self._conf_im(widget, image)
         self._conf_com(widget, name, row, col, command)
+        return widget
     def start(self, *dummy1, **dummy2):
         #self.root.mainloop()
         self._whole_gui.wait_window(self.root)
@@ -109,12 +131,17 @@ class Window(object):
             self.cont[name].select()
         else:
             self.cont[name].deselect()
+    def getR(self, radio_group):
+        return self._radio_values[radio_group][self._inner_vars_radio[radio_group].get()-1]
+    def setR(self, radio_group, value):
+        self._inner_vars_radio[radio_group].set(self._radio_values.index(value)+1)
     def getE(self, name):
         return self.cont[name].get()
     def setE(self, name, value):
         self.cont[name].delete(0, Tkinter.END)
         self.cont[name].insert(0, value)
 
+ix_app = Window
 
 ##def Array(*dims, **stuff_def):
 ##    stuffing = stuff_def.get("stuffing")
